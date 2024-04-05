@@ -54,9 +54,28 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Save the current directory
+	appDir, err := os.Getwd()
+	if err != nil {
+		fmt.Printf("Failed to get current directory: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Change to the parent directory (project root)
+	if err := os.Chdir(".."); err != nil {
+		fmt.Printf("Failed to change directory to project root: %v\n", err)
+		os.Exit(1)
+	}
+
 	// Compile the program using the Makefile
 	if err := exec.Command("make", "ubuntu_server").Run(); err != nil {
 		fmt.Printf("Failed to compile the program with Makefile: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Change back to the original app directory
+	if err := os.Chdir(appDir); err != nil {
+		fmt.Printf("Failed to change back to the app directory: %v\n", err)
 		os.Exit(1)
 	}
 
