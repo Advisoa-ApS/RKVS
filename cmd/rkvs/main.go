@@ -78,7 +78,7 @@ func main() {
 	flag.Parse()
 
 	// Init BadgerDB
-	opts := badger.DefaultOptions("../data")
+	opts := badger.DefaultOptions("/var/lib/rkvs/data")
 	db, err := badger.Open(opts)
 	if err != nil {
 		log.Fatal(err)

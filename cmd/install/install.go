@@ -83,7 +83,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	dataDir := filepath.Join(destinationPath, binaryName, "data")
+	dataDir := "/var/lib/rkvs/data"
 
 	if err := os.MkdirAll(dataDir, 0755); err != nil {
 		fmt.Printf("Failed to create the data directory: %v\n", err)
