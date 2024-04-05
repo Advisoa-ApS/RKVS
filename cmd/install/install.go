@@ -74,7 +74,7 @@ func main() {
 	fmt.Println(os.Getwd())
 
 	// Compile the program using the Makefile
-	e := exec.Command("make", "ubuntu_server")
+	e := exec.Command("make", "hello_world")
 	var out bytes.Buffer
 	e.Stdout = &out
 	err = e.Run()
