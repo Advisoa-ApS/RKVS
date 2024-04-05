@@ -9,6 +9,11 @@ win64:
 	@SET GOARCH=amd64
 	protoc --go_out=. --go-grpc_out=. ./proto/rkvs.proto
 	go build -o ./bin/$(APP_BINARY_WIN) ./cmd/rkvs
+
+win64_tools:
+	@echo Building for windows/amd64
+	@SET GOOS=windows
+	@SET GOARCH=amd64
 	go build -o ./bin/install.exe ./cmd/install
 	go build -o ./bin/uninstall.exe ./cmd/uninstall
 
@@ -18,6 +23,11 @@ ubuntu_server:
 	@export GOARCH=amd64
 	protoc --go_out=. --go-grpc_out=. ./proto/rkvs.proto
 	go build -o ./bin/$(APP_BINARY_UBUNTU) ./cmd/rkvs
+
+ubuntu_server_tools:
+	@echo Building for linux/amd64
+	@export GOOS=linux
+	@export GOARCH=amd64
 	go build -o ./bin/install ./cmd/install
 	go build -o ./bin/uninstall ./cmd/uninstall
 

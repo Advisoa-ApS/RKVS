@@ -55,7 +55,7 @@ func main() {
 	}
 
 	// Compile the program using the Makefile
-	if err := exec.Command("make", "build_ubuntu_server").Run(); err != nil {
+	if err := exec.Command("make", "ubuntu_server").Run(); err != nil {
 		fmt.Printf("Failed to compile the program with Makefile: %v\n", err)
 		os.Exit(1)
 	}
