@@ -19,17 +19,13 @@ win64_tools:
 
 ubuntu_server:
 	@echo Building for linux/amd64
-	@export GOOS=linux
-	@export GOARCH=amd64
-	protoc --go_out=. --go-grpc_out=. ./proto/rkvs.proto
-	go build -o ./bin/$(APP_BINARY_UBUNTU) ./cmd/rkvs
+	GOOS=linux GOARCH=amd64 protoc --go_out=. --go-grpc_out=. ./proto/rkvs.proto
+	GOOS=linux GOARCH=amd64 go build -o ./bin/$(APP_BINARY_UBUNTU) ./cmd/rkvs
 
 ubuntu_server_tools:
 	@echo Building for linux/amd64
-	@export GOOS=linux
-	@export GOARCH=amd64
-	go build -o ./bin/install ./cmd/install
-	go build -o ./bin/uninstall ./cmd/uninstall
+	GOOS=linux GOARCH=amd64 go build -o ./bin/install ./cmd/install
+	GOOS=linux GOARCH=amd64 go build -o ./bin/uninstall ./cmd/uninstall
 
 clean:
 	@echo Cleaning up...
@@ -40,5 +36,3 @@ clean:
 	@if [ -f ./bin/install ]; then rm ./bin/install; fi
 	@if [ -f ./bin/uninstall ]; then rm ./bin/uninstall; fi
 
-hello_world:
-	@echo "Hello, World from Makefile!"

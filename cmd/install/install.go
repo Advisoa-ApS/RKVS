@@ -54,8 +54,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Println(os.Getwd())
-
 	// Save the current working directory to return later
 	originalDir, err := os.Getwd()
 	if err != nil {
@@ -69,18 +67,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Println(os.Getwd())
-
 	// Compile the program using the Makefile
-	cmd := exec.Command("make", "hello_world")
-	cmd.Stderr = os.Stderr // Ensure stderr is printed to see any errors
-	cmd.Stdout = os.Stdout // Ensure stdout is printed to see the command output
-	if err := cmd.Run(); err != nil {
-		fmt.Printf("Failed to execute hello_world in Makefile: %v\n", err)
-		// Optionally, change back to the original directory if needed
+	if err := exec.Command("make", "ubuntu_server").Run(); err != nil {
+		fmt.Printf("Failed to compile the program with Makefile: %v\n", err)
 		os.Exit(1)
 	}
-	os.Exit(1)
 
 	// Change back to the original app directory
 	if err := os.Chdir(originalDir); err != nil {
