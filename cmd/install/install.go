@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -72,10 +74,14 @@ func main() {
 	fmt.Println(os.Getwd())
 
 	// Compile the program using the Makefile
-	if err := exec.Command("make", "ubuntu_server").Run(); err != nil {
-		fmt.Printf("Failed to compile the program with Makefile: %v\n", err)
-		os.Exit(1)
+	e := exec.Command("make", "ubuntu_server")
+	var out bytes.Buffer
+	e.Stdout = &out
+	err = e.Run()
+	if err != nil {
+		log.Fatal(err)
 	}
+	os.Exit(1)
 
 	// Change back to the original app directory
 	if err := os.Chdir(originalDir); err != nil {

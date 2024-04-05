@@ -1,4 +1,4 @@
-.PHONY: win64 ubuntu_server clean
+.PHONY: win64 win64_tools ubuntu_server ubuntu_server_tools clean
 
 APP_BINARY_WIN=rkvs.exe
 APP_BINARY_UBUNTU=rkvs
