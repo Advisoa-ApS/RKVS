@@ -20,7 +20,7 @@ win64_tools:
 ubuntu_server:
 	@echo Building for linux/amd64
 	GOOS=linux GOARCH=amd64 protoc --go_out=. --go-grpc_out=. ./proto/rkvs.proto
-	GOOS=linux GOARCH=amd64 go build -o ./bin/$(APP_BINARY_UBUNTU) ./cmd/rkvs
+	GOOS=linux GOARCH=amd64 go build -o ./bin/rkvs ./cmd/rkvs
 
 ubuntu_server_tools:
 	@echo Building for linux/amd64
