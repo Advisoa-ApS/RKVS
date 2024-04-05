@@ -1,10 +1,8 @@
 package main
 
 import (
-	"bytes"
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -74,12 +72,13 @@ func main() {
 	fmt.Println(os.Getwd())
 
 	// Compile the program using the Makefile
-	e := exec.Command("make", "hello_world")
-	var out bytes.Buffer
-	e.Stdout = &out
-	err = e.Run()
-	if err != nil {
-		log.Fatal(err)
+	cmd := exec.Command("make", "hello_world")
+	cmd.Stderr = os.Stderr // Ensure stderr is printed to see any errors
+	cmd.Stdout = os.Stdout // Ensure stdout is printed to see the command output
+	if err := cmd.Run(); err != nil {
+		fmt.Printf("Failed to execute hello_world in Makefile: %v\n", err)
+		// Optionally, change back to the original directory if needed
+		os.Exit(1)
 	}
 	os.Exit(1)
 
