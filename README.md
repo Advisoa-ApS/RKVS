@@ -1,1 +1,2 @@
-# RKVS - A Remote Key Value Store. gRPC on top of a single instance of BadgerDB
+# RKVS - A Remote Key Value Store
+Basically gRPC on top of a single instance of BadgerDB.
