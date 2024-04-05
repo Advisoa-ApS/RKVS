@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	protoFile = "../../proto/rkvs.proto"
+	protoFile = "/etc/rkvs/proto/rkvs.proto"
 )
 
 var (
@@ -51,6 +51,33 @@ func (s *RkvsServer) Get(ctx context.Context, k *pb.Key) (*pb.Value, error) {
 		return nil, nil
 	}
 	return &pb.Value{Value: string(val)}, nil
+}
+
+func (s *RkvsServer) GetAll(ctx context.Context, p *pb.Prefix) (*pb.Values, error) {
+	var vals []*pb.Value
+
+	err := s.db.View(func(txn *badger.Txn) error {
+		opts := badger.DefaultIteratorOptions
+		opts.PrefetchValues = true
+		it := txn.NewIterator(opts)
+		defer it.Close()
+
+		prefix := []byte(p.Prefix)
+		for it.Seek(prefix); it.ValidForPrefix(prefix); it.Next() {
+			item := it.Item()
+			val, err := item.ValueCopy(nil)
+			if err != nil {
+				return err
+			}
+			vals = append(vals, &pb.Value{Value: string(val)})
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.Values{Values: vals}, nil
 }
 
 func (s *RkvsServer) ExecuteTransaction(ctx context.Context, req *pb.TransactionRequest) (*pb.Ack, error) {

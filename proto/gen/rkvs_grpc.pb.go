@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	Rkvs_Get_FullMethodName                = "/rkvs.Rkvs/Get"
+	Rkvs_GetAll_FullMethodName             = "/rkvs.Rkvs/GetAll"
 	Rkvs_ExecuteTransaction_FullMethodName = "/rkvs.Rkvs/ExecuteTransaction"
 )
 
@@ -28,6 +29,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type RkvsClient interface {
 	Get(ctx context.Context, in *Key, opts ...grpc.CallOption) (*Value, error)
+	GetAll(ctx context.Context, in *Prefix, opts ...grpc.CallOption) (*Values, error)
 	ExecuteTransaction(ctx context.Context, in *TransactionRequest, opts ...grpc.CallOption) (*Ack, error)
 }
 
@@ -48,6 +50,15 @@ func (c *rkvsClient) Get(ctx context.Context, in *Key, opts ...grpc.CallOption) 
 	return out, nil
 }
 
+func (c *rkvsClient) GetAll(ctx context.Context, in *Prefix, opts ...grpc.CallOption) (*Values, error) {
+	out := new(Values)
+	err := c.cc.Invoke(ctx, Rkvs_GetAll_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *rkvsClient) ExecuteTransaction(ctx context.Context, in *TransactionRequest, opts ...grpc.CallOption) (*Ack, error) {
 	out := new(Ack)
 	err := c.cc.Invoke(ctx, Rkvs_ExecuteTransaction_FullMethodName, in, out, opts...)
@@ -62,6 +73,7 @@ func (c *rkvsClient) ExecuteTransaction(ctx context.Context, in *TransactionRequ
 // for forward compatibility
 type RkvsServer interface {
 	Get(context.Context, *Key) (*Value, error)
+	GetAll(context.Context, *Prefix) (*Values, error)
 	ExecuteTransaction(context.Context, *TransactionRequest) (*Ack, error)
 	mustEmbedUnimplementedRkvsServer()
 }
@@ -72,6 +84,9 @@ type UnimplementedRkvsServer struct {
 
 func (UnimplementedRkvsServer) Get(context.Context, *Key) (*Value, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
+}
+func (UnimplementedRkvsServer) GetAll(context.Context, *Prefix) (*Values, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAll not implemented")
 }
 func (UnimplementedRkvsServer) ExecuteTransaction(context.Context, *TransactionRequest) (*Ack, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ExecuteTransaction not implemented")
@@ -107,6 +122,24 @@ func _Rkvs_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Rkvs_GetAll_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Prefix)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RkvsServer).GetAll(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Rkvs_GetAll_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RkvsServer).GetAll(ctx, req.(*Prefix))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Rkvs_ExecuteTransaction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(TransactionRequest)
 	if err := dec(in); err != nil {
@@ -135,6 +168,10 @@ var Rkvs_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Get",
 			Handler:    _Rkvs_Get_Handler,
+		},
+		{
+			MethodName: "GetAll",
+			Handler:    _Rkvs_GetAll_Handler,
 		},
 		{
 			MethodName: "ExecuteTransaction",

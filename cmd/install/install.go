@@ -83,16 +83,36 @@ func main() {
 		os.Exit(1)
 	}
 
-	dataDir := "/var/lib/rkvs/data"
+	// Setup proto
+	protoDest := "/etc/rkvs/proto"
+	if err := os.MkdirAll(protoDest, 0755); err != nil {
+		fmt.Printf("Failed to create the proto directory: %v\n", err)
+		os.Exit(1)
+	}
+	projectRoot, _ := os.Getwd()
+	projectRoot = filepath.Dir(projectRoot) // Move up to the project root
+	protoSource := filepath.Join(projectRoot, "proto", "rkvs.proto")
+	protoDestFile := filepath.Join(protoDest, "rkvs.proto")
+	if err := exec.Command("cp", protoSource, protoDestFile).Run(); err != nil {
+		fmt.Printf("Failed to copy the proto file to %s: %v\n", protoDestFile, err)
+		os.Exit(1)
+	}
+	protoChownCmd := exec.Command("chown", "-R", "rkvs_user:rkvs_user", protoDest)
+	protoChownCmd.Stderr = os.Stderr
+	if err := protoChownCmd.Run(); err != nil {
+		fmt.Printf("Failed to change ownership of the proto directory to rkvs_user: %v\n", err)
+		os.Exit(1)
+	}
 
+	// Setup data dir
+	dataDir := "/var/lib/rkvs/data"
 	if err := os.MkdirAll(dataDir, 0755); err != nil {
 		fmt.Printf("Failed to create the data directory: %v\n", err)
 		os.Exit(1)
 	}
-
-	chownCmd := exec.Command("chown", "-R", "rkvs_user:rkvs_user", dataDir)
-	chownCmd.Stderr = os.Stderr // To see any error output
-	if err := chownCmd.Run(); err != nil {
+	dataChownCmd := exec.Command("chown", "-R", "rkvs_user:rkvs_user", dataDir)
+	dataChownCmd.Stderr = os.Stderr // To see any error output
+	if err := dataChownCmd.Run(); err != nil {
 		fmt.Printf("Failed to change ownership of the data directory to rkvs_user: %v\n", err)
 		os.Exit(1)
 	}

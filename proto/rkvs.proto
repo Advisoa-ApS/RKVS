@@ -36,7 +36,16 @@ message Value {
   string value = 1;
 }
 
+message Prefix {
+  string prefix = 1;
+}
+
+message Values {
+  repeated Value values = 1;
+}
+
 service Rkvs {
   rpc Get(Key) returns (Value) {}
+  rpc GetAll(Prefix) returns (Values) {}
   rpc ExecuteTransaction(TransactionRequest) returns (Ack) {}
 }
