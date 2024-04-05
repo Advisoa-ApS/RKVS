@@ -18,7 +18,7 @@ const (
 )
 
 var (
-	serverIp   = flag.String("ip", "192.168.56.1", "IP address for the gRPC server to listen on")
+	serverIp   = flag.String("ip", "127.0.0.1", "IP address for the gRPC server to listen on")
 	grpcPort   = flag.String("port", "9090", "Port for the gRPC server")
 	httpPort   = flag.String("http_port", "9091", "Port for the HTTP server to serve the proto file")
 	daemonMode = flag.Bool("daemon", false, "Run in daemon mode")
