@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package rkvs;
+
+option go_package = "./proto/gen;rkvs";
+
+message TransactionRequest {
+  repeated Operation operations = 1;
+}
+
+message Operation {
+  oneof operation_type {
+    SetOperation set = 1;
+    DeleteOperation delete = 2;
+  }
+}
+
+message SetOperation {
+  string key = 1;
+  string value = 2;
+}
+
+message DeleteOperation {
+  string key = 1;
+}
+
+message Ack {
+  bool success = 1;
+}
+
+message Key {
+  string key = 1;
+}
+
+message Value {
+  string value = 1;
+}
+
+service Rkvs {
+  rpc Get(Key) returns (Value) {}
+  rpc ExecuteTransaction(TransactionRequest) returns (Ack) {}
+}
