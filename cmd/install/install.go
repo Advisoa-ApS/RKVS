@@ -18,7 +18,7 @@ Description=Remote Key Value Store
 After=network.target
 
 [Service]
-User=ubuntu
+User=rkvs_user
 ExecStart={{.DestinationPath}}{{.BinaryName}} -ip {{.IP}} -port {{.Port}} -http_port {{.HTTPPort}}
 Restart=always
 
@@ -61,9 +61,39 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Check if the rkvs_user exists
+	cmd := exec.Command("id", "rkvs_user")
+	if err := cmd.Run(); err != nil {
+		fmt.Println("Creating system user 'rkvs_user' for RKVS service...")
+		// Create the rkvs_user system user with no login shell
+		userCmd := exec.Command("useradd", "-r", "-M", "-s", "/bin/false", "rkvs_user")
+		userCmd.Stderr = os.Stderr
+		userCmd.Stdout = os.Stdout
+		if err := userCmd.Run(); err != nil {
+			fmt.Printf("Failed to create system user 'rkvs_user': %v\n", err)
+			os.Exit(1)
+		}
+	} else {
+		fmt.Println("System user 'rkvs_user' already exists. Skipping user creation.")
+	}
+
 	dest := filepath.Join(destinationPath, binaryName)
 	if err := exec.Command("cp", execPath, dest).Run(); err != nil {
 		fmt.Printf("Failed to copy the binary to %s: %v\n", destinationPath, err)
+		os.Exit(1)
+	}
+
+	dataDir := filepath.Join(destinationPath, binaryName, "data")
+
+	if err := os.MkdirAll(dataDir, 0755); err != nil {
+		fmt.Printf("Failed to create the data directory: %v\n", err)
+		os.Exit(1)
+	}
+
+	chownCmd := exec.Command("chown", "-R", "rkvs_user:rkvs_user", dataDir)
+	chownCmd.Stderr = os.Stderr // To see any error output
+	if err := chownCmd.Run(); err != nil {
+		fmt.Printf("Failed to change ownership of the data directory to rkvs_user: %v\n", err)
 		os.Exit(1)
 	}
 
