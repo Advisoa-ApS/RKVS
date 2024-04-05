@@ -1,4 +1,4 @@
-.PHONY: win64 win64_tools ubuntu_server ubuntu_server_tools clean
+.PHONY: win64 win64_tools ubuntu_server ubuntu_server_tools clean hello_world
 
 APP_BINARY_WIN=rkvs.exe
 APP_BINARY_UBUNTU=rkvs
@@ -39,3 +39,6 @@ clean:
 	@if [ -f ./bin/$(APP_BINARY_UBUNTU) ]; then rm ./bin/$(APP_BINARY_UBUNTU); fi
 	@if [ -f ./bin/install ]; then rm ./bin/install; fi
 	@if [ -f ./bin/uninstall ]; then rm ./bin/uninstall; fi
+
+hello_world:
+	@echo "Hello, World from Makefile!"
