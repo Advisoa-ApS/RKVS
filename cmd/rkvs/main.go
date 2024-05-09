@@ -42,9 +42,6 @@ func (s *RkvsServer) Get(ctx context.Context, k *pb.Key) (*pb.Item, error) {
 	var val []byte
 	err := s.db.View(func(txn *badger.Txn) error {
 		item, err := txn.Get([]byte(k.Key))
-		if err == badger.ErrKeyNotFound {
-			return nil // No error, just an empty value
-		}
 		if err != nil {
 			return err
 		}
@@ -55,7 +52,6 @@ func (s *RkvsServer) Get(ctx context.Context, k *pb.Key) (*pb.Item, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return &pb.Item{
 		Key:   string(key),
 		Value: string(val),
@@ -114,7 +110,7 @@ func main() {
 	flag.Parse()
 
 	// Init BadgerDB
-	opts := badger.DefaultOptions("./data")
+	opts := badger.DefaultOptions("/var/lib/rkvs/data")
 	db, err := badger.Open(opts)
 	if err != nil {
 		log.Fatal(err)
