@@ -42,6 +42,9 @@ func (s *RkvsServer) Get(ctx context.Context, k *pb.Key) (*pb.Item, error) {
 	var val []byte
 	err := s.db.View(func(txn *badger.Txn) error {
 		item, err := txn.Get([]byte(k.Key))
+		if err == badger.ErrKeyNotFound {
+			return nil // No error, just an empty value
+		}
 		if err != nil {
 			return err
 		}
@@ -52,6 +55,7 @@ func (s *RkvsServer) Get(ctx context.Context, k *pb.Key) (*pb.Item, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return &pb.Item{
 		Key:   string(key),
 		Value: string(val),
@@ -84,7 +88,6 @@ func (s *RkvsServer) GetAll(ctx context.Context, p *pb.Prefix) (*pb.Items, error
 
 	return &pb.Items{Items: items}, nil
 }
-
 func (s *RkvsServer) ExecuteTransaction(ctx context.Context, req *pb.TransactionRequest) (*pb.Ack, error) {
 	err := s.db.Update(func(txn *badger.Txn) error {
 		for _, operation := range req.Operations {
