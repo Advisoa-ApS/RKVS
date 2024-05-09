@@ -37,24 +37,29 @@ func NewRkvsServer(db *badger.DB) *RkvsServer {
 	return &RkvsServer{db: db}
 }
 
-func (s *RkvsServer) Get(ctx context.Context, k *pb.Key) (*pb.Value, error) {
+func (s *RkvsServer) Get(ctx context.Context, k *pb.Key) (*pb.Result, error) {
 	var val []byte
+	var key []byte
 	err := s.db.View(func(txn *badger.Txn) error {
 		item, err := txn.Get([]byte(k.Key))
 		if err != nil {
 			return err
 		}
 		val, err = item.ValueCopy(nil)
+		key = item.KeyCopy(nil)
 		return err
 	})
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
-	return &pb.Value{Value: string(val)}, nil
+	return &pb.Result{
+		Key:   string(key),
+		Value: string(val),
+	}, nil
 }
 
-func (s *RkvsServer) GetAll(ctx context.Context, p *pb.Prefix) (*pb.Values, error) {
-	var vals []*pb.Value
+func (s *RkvsServer) GetAll(ctx context.Context, p *pb.Prefix) (*pb.Results, error) {
+	var results []*pb.Result
 
 	err := s.db.View(func(txn *badger.Txn) error {
 		opts := badger.DefaultIteratorOptions
@@ -69,7 +74,10 @@ func (s *RkvsServer) GetAll(ctx context.Context, p *pb.Prefix) (*pb.Values, erro
 			if err != nil {
 				return err
 			}
-			vals = append(vals, &pb.Value{Value: string(val)})
+			results = append(results, &pb.Result{
+				Key:   string(item.KeyCopy(nil)),
+				Value: string(val),
+			})
 		}
 		return nil
 	})
@@ -77,7 +85,7 @@ func (s *RkvsServer) GetAll(ctx context.Context, p *pb.Prefix) (*pb.Values, erro
 		return nil, err
 	}
 
-	return &pb.Values{Values: vals}, nil
+	return &pb.Results{Results: results}, nil
 }
 
 func (s *RkvsServer) ExecuteTransaction(ctx context.Context, req *pb.TransactionRequest) (*pb.Ack, error) {

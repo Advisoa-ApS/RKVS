@@ -28,8 +28,8 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type RkvsClient interface {
-	Get(ctx context.Context, in *Key, opts ...grpc.CallOption) (*Value, error)
-	GetAll(ctx context.Context, in *Prefix, opts ...grpc.CallOption) (*Values, error)
+	Get(ctx context.Context, in *Key, opts ...grpc.CallOption) (*Result, error)
+	GetAll(ctx context.Context, in *Prefix, opts ...grpc.CallOption) (*Results, error)
 	ExecuteTransaction(ctx context.Context, in *TransactionRequest, opts ...grpc.CallOption) (*Ack, error)
 }
 
@@ -41,8 +41,8 @@ func NewRkvsClient(cc grpc.ClientConnInterface) RkvsClient {
 	return &rkvsClient{cc}
 }
 
-func (c *rkvsClient) Get(ctx context.Context, in *Key, opts ...grpc.CallOption) (*Value, error) {
-	out := new(Value)
+func (c *rkvsClient) Get(ctx context.Context, in *Key, opts ...grpc.CallOption) (*Result, error) {
+	out := new(Result)
 	err := c.cc.Invoke(ctx, Rkvs_Get_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -50,8 +50,8 @@ func (c *rkvsClient) Get(ctx context.Context, in *Key, opts ...grpc.CallOption) 
 	return out, nil
 }
 
-func (c *rkvsClient) GetAll(ctx context.Context, in *Prefix, opts ...grpc.CallOption) (*Values, error) {
-	out := new(Values)
+func (c *rkvsClient) GetAll(ctx context.Context, in *Prefix, opts ...grpc.CallOption) (*Results, error) {
+	out := new(Results)
 	err := c.cc.Invoke(ctx, Rkvs_GetAll_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -72,8 +72,8 @@ func (c *rkvsClient) ExecuteTransaction(ctx context.Context, in *TransactionRequ
 // All implementations must embed UnimplementedRkvsServer
 // for forward compatibility
 type RkvsServer interface {
-	Get(context.Context, *Key) (*Value, error)
-	GetAll(context.Context, *Prefix) (*Values, error)
+	Get(context.Context, *Key) (*Result, error)
+	GetAll(context.Context, *Prefix) (*Results, error)
 	ExecuteTransaction(context.Context, *TransactionRequest) (*Ack, error)
 	mustEmbedUnimplementedRkvsServer()
 }
@@ -82,10 +82,10 @@ type RkvsServer interface {
 type UnimplementedRkvsServer struct {
 }
 
-func (UnimplementedRkvsServer) Get(context.Context, *Key) (*Value, error) {
+func (UnimplementedRkvsServer) Get(context.Context, *Key) (*Result, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
 }
-func (UnimplementedRkvsServer) GetAll(context.Context, *Prefix) (*Values, error) {
+func (UnimplementedRkvsServer) GetAll(context.Context, *Prefix) (*Results, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAll not implemented")
 }
 func (UnimplementedRkvsServer) ExecuteTransaction(context.Context, *TransactionRequest) (*Ack, error) {
