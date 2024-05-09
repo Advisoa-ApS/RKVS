@@ -36,21 +36,21 @@ message Value {
   string value = 1;
 }
 
-message Result {
-  string key = 1;
-  string value = 2;
-}
-
 message Prefix {
   string prefix = 1;
 }
 
-message Results {
-  repeated Result results = 1;
+message Item {
+  string key = 1;
+  string value = 2;
+}
+
+message Items {
+  map<string, string> items = 1;
 }
 
 service Rkvs {
-  rpc Get(Key) returns (Result) {}
-  rpc GetAll(Prefix) returns (Results) {}
+  rpc Get(Key) returns (Item) {}
+  rpc GetAll(Prefix) returns (Items) {}
   rpc ExecuteTransaction(TransactionRequest) returns (Ack) {}
 }

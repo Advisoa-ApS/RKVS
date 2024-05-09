@@ -3,13 +3,12 @@ module github.com/Advisoa-ApS/rkvs
 go 1.21.0
 
 require (
-	github.com/dgraph-io/badger/v3 v3.2103.5
+	github.com/dgraph-io/badger/v4 v4.2.0
 	google.golang.org/grpc v1.63.0
 	google.golang.org/protobuf v1.33.0
 )
 
 require (
-	github.com/cespare/xxhash v1.1.0 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/dgraph-io/ristretto v0.1.1 // indirect
 	github.com/dustin/go-humanize v1.0.0 // indirect

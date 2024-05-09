@@ -9,7 +9,7 @@ import (
 	"net/http"
 
 	pb "github.com/Advisoa-ApS/rkvs/proto/gen"
-	badger "github.com/dgraph-io/badger/v3"
+	badger "github.com/dgraph-io/badger/v4"
 	"google.golang.org/grpc"
 )
 
@@ -37,29 +37,29 @@ func NewRkvsServer(db *badger.DB) *RkvsServer {
 	return &RkvsServer{db: db}
 }
 
-func (s *RkvsServer) Get(ctx context.Context, k *pb.Key) (*pb.Result, error) {
-	var val []byte
+func (s *RkvsServer) Get(ctx context.Context, k *pb.Key) (*pb.Item, error) {
 	var key []byte
+	var val []byte
 	err := s.db.View(func(txn *badger.Txn) error {
 		item, err := txn.Get([]byte(k.Key))
 		if err != nil {
 			return err
 		}
-		val, err = item.ValueCopy(nil)
 		key = item.KeyCopy(nil)
+		val, err = item.ValueCopy(nil)
 		return err
 	})
 	if err != nil {
 		return nil, err
 	}
-	return &pb.Result{
+	return &pb.Item{
 		Key:   string(key),
 		Value: string(val),
 	}, nil
 }
 
-func (s *RkvsServer) GetAll(ctx context.Context, p *pb.Prefix) (*pb.Results, error) {
-	var results []*pb.Result
+func (s *RkvsServer) GetAll(ctx context.Context, p *pb.Prefix) (*pb.Items, error) {
+	items := make(map[string]string)
 
 	err := s.db.View(func(txn *badger.Txn) error {
 		opts := badger.DefaultIteratorOptions
@@ -74,10 +74,7 @@ func (s *RkvsServer) GetAll(ctx context.Context, p *pb.Prefix) (*pb.Results, err
 			if err != nil {
 				return err
 			}
-			results = append(results, &pb.Result{
-				Key:   string(item.KeyCopy(nil)),
-				Value: string(val),
-			})
+			items[string(item.KeyCopy(nil))] = string(val)
 		}
 		return nil
 	})
@@ -85,7 +82,7 @@ func (s *RkvsServer) GetAll(ctx context.Context, p *pb.Prefix) (*pb.Results, err
 		return nil, err
 	}
 
-	return &pb.Results{Results: results}, nil
+	return &pb.Items{Items: items}, nil
 }
 
 func (s *RkvsServer) ExecuteTransaction(ctx context.Context, req *pb.TransactionRequest) (*pb.Ack, error) {
